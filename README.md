@@ -12,4 +12,4 @@ Many of these scripts are targeted at making scripts on your path instantly acce
 
 `wls` - show details about an executable on the path.
 
-`wvim` - open a script on the path in vim.
+`wvim` - open a script on the path in vim for editing.
