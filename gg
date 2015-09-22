@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# Git Log Graph
+# Will default to "-10" to list 10 logs.  You can override by providing your own -n.
+# Note, if you provide any other additional option, you will also need to provide a -n.
+# A useful option to add is --simplify-by-decoration
+
+count=''
+if [ "$#" -eq 0 ]; then
+    count='-10'
+fi
+
+git --no-pager log --graph --oneline --decorate  $count $*
+
+# A more customized view, showing author.
+# TODO: add color
+# git --no-pager log --graph --pretty=format:"%h %ad %an %d %s" --date=short $count $*
+

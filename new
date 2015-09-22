@@ -1,0 +1,6 @@
+#!/bin/sh
+# Create a new executable script in your sbin.
+file="$HOME/sbin/$1"
+touch "$file"
+chmod +x "$file"
+vim "$file"

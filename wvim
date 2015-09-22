@@ -1,0 +1,3 @@
+#!/bin/sh
+# Edit a script on the path.
+which $1 && vim $(which $1)
