@@ -3,7 +3,10 @@
 # Git Log Graph
 # Will default to "-10" to list 10 logs.  You can override by providing your own -n.
 # Note, if you provide any other additional option, you will also need to provide a -n.
-# A useful option to add is --simplify-by-decoration
+
+# Other Useful options
+# --simplify-by-decoration
+# --first-parent
 
 count=''
 if [ "$#" -eq 0 ]; then
