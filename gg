@@ -1,21 +1,125 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-# Git Log Graph
-# Will default to "-10" to list 10 logs.  You can override by providing your own -n.
-# Note, if you provide any other additional option, you will also need to provide a -n.
+# Wrapper for 'git log --graph ...' which adds my prefered defaults
+# and supports other options.
+# Expands compressed short args, e.g. -abc => -a -b -c
 
-# Other Useful options
+# Other useful git log options:
 # --simplify-by-decoration
+#     Only shows "decorated" committs.
 # --first-parent
+#     See a chain of commits (including merges) for master,
+#     without the internal commits of topic branches.
 
-count=''
-if [ "$#" -eq 0 ]; then
-    count='-10'
+# Defaults
+DEFAULT_COUNT='10'
+MAX_WITHOUT_PAGING=30
+
+usage() {
+  echo "Show a decorated git log graph"
+	echo "Usage: $(basename -- "$0") [command options] [git log options]"
+  echo "    Command options:"
+  echo "    -v|--verbose: Show author and date. Decorations will not be colored."
+  echo "    -b|--branches: Show all local branches."
+  echo ""
+  echo "    'git log' options:"
+  echo "    Use any valid option for 'git log'"
+  echo ""
+  echo "    Defaults to showing $DEFAULT_COUNT commits."
+  echo "    Will not use 'less' unless you are looking at more than $MAX_WITHOUT_PAGING commits."
+	exit 1
+}
+
+COUNT=''
+NEW_ARGS=()
+GIT_OPTIONS=()
+
+# For each letter, create a new short arg with that letter.
+# e.g. "-abc" => "-a" "-b" "-c"
+# The new args are then put onto the arg stack in the arg processing loop.
+# They can't be put onto the arg stack from within the function, because the
+# function's arg stack shadows the script's arg stack.
+expand_args() {
+  letters="$1"
+  for (( i=0; i<${#letters}; i++ )); do
+    NEW_ARGS+=("-${letters:$i:1}")
+  done
+}
+
+# Used suggestions for command line arg processing from
+# https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
+# But the code to expand smooshed short args is my own.
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    # Flags
+    # Adding -b as shorthand for git log --branches
+    -b|--branches) BRANCHES='true';;
+    -h|--help) usage;;
+    -v|--verbose) VERBOSE='true';;
+
+    # Space Separated Arguments
+    # TODO: error if argument value isn't given.
+    -n|--max-count) COUNT="$2"; shift;;
+
+    # Equals Separated Arguments
+    -n=*|--max-count=*) COUNT="${1#*=}";;
+
+    # BUG: check for strictly numeric args e.g. -20
+    # That should be passed on to git as is, but currently will be expanded to "-2 -0"
+    # Also, the script will use the default -n 10 b/c it does not know -20 should override that.
+
+    # Handle argument given without a required value.
+    --number) echo "$1 requires an argument" >&2; usage;;
+
+    # Args that aren't processed by the script are passed on to 'git'
+    # This case is needed so that the -*) case doesn't expand "--foo" into "-- -f -o -o"
+    --*) GIT_OPTIONS+=("$1");;
+
+    # Handle smooshed short args. "-vbn 20" is expanded to "-v -b -n 20"
+    -*) ARG="${1#*-}"
+        [ ${#ARG} -gt 1 ] && expand_args "$ARG" || GIT_OPTIONS+=("$1");;
+
+    # Any positional args get passed on to 'git'
+    *) GIT_OPTIONS+=("$1");;
+  esac
+  shift
+
+  # Put new (expanded) args onto the arg stack.
+  if (( ${#NEW_ARGS[@]} )); then
+    set -- "${NEW_ARGS[@]}" "$*"
+    NEW_ARGS=()
+  fi
+done
+
+if [ -z "$COUNT" ]; then
+    COUNT=$DEFAULT_COUNT
 fi
 
-git --no-pager log --graph --oneline --decorate  $count $*
+# Don't open `less` for fewer than configured results.
+PAGING='--no-pager'
+if (( COUNT > MAX_WITHOUT_PAGING )); then
+  PAGING=''
+fi
 
-# A more customized view, showing author.
-# TODO: add color
-# git --no-pager log --graph --pretty=format:"%h %ad %an %d %s" --date=short $count $*
+if [ "$BRANCHES" = "true" ]; then
+  GIT_OPTIONS+=('--branches')
+fi
 
+if [ "$VERBOSE" = "true" ]; then
+  # A more detailed view showing author and date.
+  # "tformat" instead of "format" causes a newline to be appended.
+  # TODO: add colors for the date and author.
+  FORMAT='--pretty='"'tformat:%C(auto)%h %C(blue)%ad%C(auto) %C(magenta dim)%an%C(auto)%d %s'"' --date=short'
+else
+  # A good summary with nicely colored decorations. Lacks author and date.
+  FORMAT='--oneline'
+fi
+
+# Show the generated command, and execute it.
+COMMAND="git $PAGING log --graph $FORMAT --decorate -n $COUNT ${GIT_OPTIONS[*]}"
+echo "$COMMAND"
+
+# TODO: may want to build the command with array instead of string,
+# then git rid of `eval`
+eval $COMMAND
