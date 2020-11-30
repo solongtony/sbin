@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+# TODO:
+# * Verify the network interface input.
+# * Add a verbose option for the commented out stuff.
+# * Deal with "RTNETLINK answers: Cannot assign requested address"
+#   * either figure out why some addresses are rejected and generate only good ones
+#   * or add retry logic to just retry with a new random address in that case
+
+# WIFI:     wlp4s0
+# Ethernet: enp0s25
+INTERFACE=$1
+
+# hexdump -n 6 /dev/urandom && echo
+MAC=$2
+
+MAC_REGX='^([0-9a-f]{2}:){5}[0-9a-f]{2}$'
+
+function show_interface() {
+  ip link show $INTERFACE
+}
+
+function get_link_info() {
+  ip -br link show $INTERFACE
+}
+
+function is_link_down() {
+  get_link_info | grep ' DOWN ' >> /dev/null
+}
+
+if ! [[ "$MAC" =~ $MAC_REGX ]]; then
+  echo "Bad MAC address given: '$MAC'" >&2
+  exit 1
+fi
+
+show_interface
+WAS_UP="$(is_link_down && echo 0 || echo 1)"
+echo $WAS_UP
+
+#echo
+#echo Set interface to down
+sudo ip link set "$INTERFACE" down
+
+#echo
+#echo Set interface MAC
+sudo ip link set "$INTERFACE" address "$MAC"
+
+#echo
+#echo Set interface to up
+if (( $WAS_UP ))
+then
+  echo "set it up"
+  sudo ip link set "$INTERFACE" up
+fi
+
+show_interface

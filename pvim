@@ -1,0 +1,1 @@
+VIM_PRIVATE=1 vim "$@"

@@ -1,0 +1,3 @@
+#!/bin/sh
+# Show the contents of a script on your path.
+which $1 && cat $(which $1)

@@ -1,0 +1,6 @@
+#!/bin/zsh
+# Find processes that match the given arg.
+# Puts [] around the first letter,
+# so the grep will not find itself.
+# This version only works in zsh
+ps aux | grep '['${1[1,1]}']'${1[2,-1]}

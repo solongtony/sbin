@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+pushd /usr/local/games/LinuxLNP-0.44.12-r03 || exit 1
+./startlnp
+popd || exit 1

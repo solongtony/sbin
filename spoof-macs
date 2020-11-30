@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+# TODO
+# * retry if it doesn't work (grep for new mac
+# * option to just do one of them
+
+function spoof_mac() {
+  device=$1
+  name=$2
+
+  NEW_MAC=$(gen_mac)
+  echo "Setting $device ($name) to $NEW_MAC"
+  set-mac "$device" "$NEW_MAC"
+}
+
+
+# Set ethernet MAC
+
+success=1
+
+while [ "$success" != "0" ]
+do
+  spoof_mac 'enp0s25' 'ethernet'
+  success=$?
+done
+
+echo
+
+# Set wifi MAC
+
+success=1
+
+while [ "$success" != "0" ]
+do
+  spoof_mac 'wlp4s0' 'wifi'
+  success=$?
+  echo $success
+done
+

@@ -1,0 +1,7 @@
+#!/bin/sh
+# Create a new executable script in your bin, and start editing it.
+file="$HOME/bin/$1"
+# TODO: check if $file already exists.
+touch "$file"
+chmod +x "$file"
+vim "$file"

@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# Start a process in the background
+# Redirect the standard output and error output to temp files.
+# The process will then run independent of the shell that started it.
+# Also logs the program and timestamp when it was launched.
+
+echo $1 $(date) >> /tmp/launch.log
+nohup $* >> /tmp/launch.out 2>> /tmp/launch.err &
