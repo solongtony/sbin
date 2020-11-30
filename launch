@@ -1,9 +1,18 @@
+<<<<<<< HEAD
 #!/bin/zsh
+=======
+#!/bin/sh
+>>>>>>> 9147af8 (all loval changes)
 
 # Start a process in the background
 # Redirect the standard output and error output to temp files.
 # The process will then run independent of the shell that started it.
 # Also logs the program and timestamp when it was launched.
 
+<<<<<<< HEAD
 echo $1 $(date) >> /tmp/nohup.out
 nohup $* >> /tmp/nohup.out 2>> /tmp/nohup.err &
+=======
+echo $1 $(date) >> /tmp/launch.log
+nohup $* >> /tmp/launch.out 2>> /tmp/launch.err &
+>>>>>>> 9147af8 (all loval changes)

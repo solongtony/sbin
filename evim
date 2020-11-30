@@ -1,2 +1,33 @@
 # Encrypted vim
+<<<<<<< HEAD
 vim -xn
+=======
+
+# Use this to creat encrypted files in vim.
+# To resume editing an encrypted file you can just use `vim`
+# and it will ask for a key, although with efault options
+# your buffer may be saved in plain text various places.
+# To securily edit an encrypted or unencrypted file,
+# use `pvim` or the equivalent `VIM_PRIVATE=1 vim`
+# Cypher and other security / privacy important options set in .vimrc
+
+# Example .vimrc
+# set cm=blowfish2    " The only available secure cypher
+#" Ensure private editing.
+#" Usage - VIM_PRIVATE=1 vim
+#if $VIM_PRIVATE
+#  set nobackup
+#  set nowritebackup
+#  set noundofile
+#  set noswapfile
+#  set viminfo=""
+#  set noshelltemp
+#  set history=0
+#  set nomodeline
+#  set secure
+#endif
+
+# -x is for encyption
+# -n is for no swap file (which is an unencrypted copy of your buffer)
+VIM_PRIVATE=1 vim -xn "$@"
+>>>>>>> 9147af8 (all loval changes)
