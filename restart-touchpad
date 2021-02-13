@@ -1,2 +1,13 @@
+# My Lenovo has certain problems with the touchpad when running Linux
+# Some discussion here
+# https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1791427
+
+# One says disabling the finger print reader in BIOS caused the problem.
+
+# One uses
+#echo -n "none" | sudo tee /sys/bus/serio/devices/serio1/drvctl
+#echo -n "reconnect" | sudo tee /sys/bus/serio/devices/serio1/drvctl
+
+# This works for me, although I have to run it each time the problems start.
 sudo modprobe -r psmouse
 sudo modprobe psmouse
