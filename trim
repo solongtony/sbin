@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+# Remove whitespace from the beginning or end of each line.
+# Operates on stdin or a given list of filenames
+sed 's/^[[:blank:]]*//; s/[[:blank:]]*$//' $*
