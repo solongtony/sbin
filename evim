@@ -1,8 +1,3 @@
-# Encrypted vim
-<<<<<<< HEAD
-vim -xn
-=======
-
 # Use this to creat encrypted files in vim.
 # To resume editing an encrypted file you can just use `vim`
 # and it will ask for a key, although with efault options
@@ -30,4 +25,3 @@ vim -xn
 # -x is for encyption
 # -n is for no swap file (which is an unencrypted copy of your buffer)
 VIM_PRIVATE=1 vim -xn "$@"
->>>>>>> 9147af8 (all loval changes)

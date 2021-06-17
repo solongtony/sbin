@@ -1,12 +1,7 @@
 #!/bin/sh
-<<<<<<< HEAD
-# Create a new executable script in your sbin.
-file="$HOME/bin/$1"
-=======
 # Create a new executable script in your bin, and start editing it.
 file="$HOME/bin/$1"
 # TODO: check if $file already exists.
->>>>>>> 9147af8 (all loval changes)
 touch "$file"
 chmod +x "$file"
 vim "$file"
