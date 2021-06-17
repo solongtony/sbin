@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Create an SSH tunnel.
+
+LOCAL_PORT="$1"
+REMOTE_HOST="$2"
+REMOTE_PORT="$LOCAL_PORT" # Change this if the ports are not the same.
+
+# Optional
+PROXY="$3"      # Will tunnel through this proxy.
+
+
+# For security, the local binding is always be bound to local host:
+#   127.0.0.1:${LOCAL_PORT}
+# So it will not be available publicly.
+# Likewise, the remote service is bound to local host
+# and can only be accessed remotely using an ssh tunnel.
+#   127.0.0.1:${REMOTE_PORT}
+# This uses your ssh tunnel to connect to the remote port from the remote server's local address.
+
+# ssh -fNL
+# -f has ssh go to the background
+# -N do Not execute a command or open a shell
+# -L forward the local port to the remote port
+
+if [ -z "$PROXY" ]
+then
+  ssh -fNL "127.0.0.1:${LOCAL_PORT}:${REMOTE_HOST}:${REMOTE_PORT}"
+else
+  ssh -fNL "127.0.0.1:${LOCAL_PORT}:${REMOTE_HOST}:${REMOTE_PORT}" "${PROXY}"
+fi
