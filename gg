@@ -117,7 +117,7 @@ else
 fi
 
 # Show the generated command, and execute it.
-COMMAND="git $PAGING log --graph $FORMAT --decorate -n $COUNT ${GIT_OPTIONS[*]}"
+COMMAND="git $PAGING log --graph $FORMAT --first-parent --decorate -n $COUNT ${GIT_OPTIONS[*]}"
 echo "$COMMAND"
 
 # TODO: may want to build the command with array instead of string,
