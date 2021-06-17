@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# Use MD5 to generate a random hash.
+# Optionally specify how many characters you want.
+# Default number of characters is 32
+# The resulting string is composed of lowercase letters and numbers.
+
+length=$1
+: ${length:=32}
+full_hash=$(date | md5)
+echo ${full_hash:0:length}
