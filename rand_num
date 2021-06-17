@@ -1,0 +1,3 @@
+
+# Two bytes of random data, in decimal.
+od -An -N2 -i /dev/random
