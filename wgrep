@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+PATTERN="$1"
+
+# TODO: arg processing for options.
+
+# Whether to include the full path in the match (otherwise just the filename).
+# Anything other than true is false.
+INCLUDE_PATH=true
+
+# -i for case insensitive match.
+GREP_OPTS='-i' # Don't call it "GREP_OPTIONS" which is used by grep
+
+if [ "$INCLUDE_PATH" != true ]
+then
+  # Add this qualifier to the path which limits the match to the last segment.
+  PATTERN="$PATTERN"'[^/]*$'
+fi
+
+
+# Find files executable by the current user: the `-exec` is overkill for this use case.
+# https://stackoverflow.com/questions/4458120/search-for-executable-files-using-find-command
+# find . -type f \( -perm -u=x -o -perm -g=x -o -perm -o=x \) -exec test -x {} \; -print
+
+# Find the pattern anywhere, including the path.
+pp | xargs -n 1 -I {} find {} -maxdepth 1 -type f -perm -u=x | grep "$GREP_OPTS" "$PATTERN"
+
+# Find the pattern in just in the filename or last path segment.
+# pp | head -n 3 | xargs -n 1 -I {} find {} -maxdepth 1 -type f -perm -u=x | grep "$PATTERN"'[^/]*$'
