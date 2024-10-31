@@ -23,7 +23,4 @@ fi
 # find . -type f \( -perm -u=x -o -perm -g=x -o -perm -o=x \) -exec test -x {} \; -print
 
 # Find the pattern anywhere, including the path.
-pp | xargs -n 1 -I {} find {} -maxdepth 1 -type f -perm -u=x | grep "$GREP_OPTS" "$PATTERN"
-
-# Find the pattern in just in the filename or last path segment.
-# pp | head -n 3 | xargs -n 1 -I {} find {} -maxdepth 1 -type f -perm -u=x | grep "$PATTERN"'[^/]*$'
+pp | tr '\n' '\0' | xargs -0 -n 1 -I {} find "{}" -maxdepth 1 -type f -perm -u=x | grep "$PATTERN" "$GREP_OPTS"

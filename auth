@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# Creates Google Authenticator compatible totp codes.
+# The code is the only thing that should be printed to stdout, so it can be piped.
+# All other output can go to stderr.
+
+# Good documentation for a similar use case can be found at
+# https://hq-stash.corp.proofpoint.com/projects/CINTEL/repos/cintel-scripts/browse/mfa-s3-access/
+
+# Pre-reqs
+# * Install oathtool
+#   `brew install oath-toolkit`
+# * Get a new MFS QR code
+#   - Goto https://proofpoint.onelogin.com/portal/
+#   - Go to the One-Login portal, click on your name on the top right > Profile
+#   - Click on the "+" (Add Device) for 2-Factor Authentication
+#   - Save the QR code, e.g. as /tmp/mfa-qr.png
+# * Create an MFA secret file
+#   - Install zbarimg
+#     `brew install zbar`
+#   - Run (change ~/OneLogin_secret to wherever you want to keep the file):
+#     `zbarimg /tmp/mfa-qr.png | awk -F '\?' '{print $2}' | awk -F '\&' '{print $1}' | awk -F '=' '{print $2}' >> ~/OneLogin_secret`
+#   - Secure the new file
+#     `sudo chown root OneLogin_secret`
+#     `sudo chmod u+rw OneLogin_secret`
+#     `sudo chmod go-rwx OneLogin_secret`
+# * Delete the QR code png
+#   `rm /tmp/mfa-qr.png`
+
+# Help
+if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+  echo try one of these
+  # sudo ls -1 "$AUTH_DIR/*.mfa"
+  export AUTH_DIR
+  sudo AUTH_DIR=$AUTH_DIR bash -c 'ls -1 "$AUTH_DIR/*.mfa"'
+  exit 0
+fi
+
+if [ -z "$1" ] ; then
+  # Default location of your mfa-secret file.
+  >&2 echo using default
+  # Use environment variables for defaults - must be set.
+  SECRET_FILE="$AUTH_DIR/$AUTH_DEFAULT"
+elif [ -f "$1" ] ; then
+  # This exact path exists.
+  >&2 echo using "$1"
+  SECRET_FILE="$1"
+elif [ -f "$AUTH_DIR/$1" ] ; then
+  # This file exists in the default dir.
+  >&2 echo using "$AUTH_DIR/$1"
+  SECRET_FILE="$AUTH_DIR/$1"
+elif [ -f "$AUTH_DIR/$1.mfa" ] ; then
+  # This filename + .mfa exists in the default dir.
+  >&2 echo using "$AUTH_DIR/$1.mfa"
+  SECRET_FILE="$AUTH_DIR/$1.mfa"
+else
+  >&2 echo "Could not find $1"
+  exit 1
+fi
+oathtool --base32 --totp "$(sudo cat $SECRET_FILE)" -d 6

@@ -11,6 +11,9 @@
 #     See a chain of commits (including merges) for master,
 #     without the internal commits of topic branches.
 
+# Extended glob matching is used in the parameter matching case statement.
+shopt -s extglob
+
 # Defaults
 DEFAULT_COUNT='10'
 MAX_WITHOUT_PAGING=30
@@ -49,9 +52,13 @@ expand_args() {
 # Used suggestions for command line arg processing from
 # https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
 # But the code to expand smooshed short args is my own.
+# TODO: re-implement smooshed short args like "-vn 10"
 
 while [ "$#" -gt 0 ]; do
+  #echo Next few args 1: $1 2: $2 3: $3 4: $4 5: $5
   case "$1" in
+    -[!-][a-zA-Z]) echo "Smooshed short args ($1) are not currently supported"; usage;;
+
     # Flags
     # Adding -b as shorthand for git log --branches
     -b|--branches) BRANCHES='true';;
@@ -63,11 +70,10 @@ while [ "$#" -gt 0 ]; do
     -n|--max-count) COUNT="$2"; shift;;
 
     # Equals Separated Arguments
-    -n=*|--max-count=*) COUNT="${1#*=}";;
+    -n=*|--max-count=*) COUNT="${1#*=}";; # First parameter value after the equals
 
-    # BUG: check for strictly numeric args e.g. -20
-    # That should be passed on to git as is, but currently will be expanded to "-2 -0"
-    # Also, the script will use the default -n 10 b/c it does not know -20 should override that.
+    # Handle a numeric parameter, shorthand for -n <number>
+    -+([0-9])) COUNT=${1:1};; # first parameter skipping the first character: "-"
 
     # Handle argument given without a required value.
     --number) echo "$1 requires an argument" >&2; usage;;
@@ -79,6 +85,8 @@ while [ "$#" -gt 0 ]; do
     # Handle smooshed short args. "-vbn 20" is expanded to "-v -b -n 20"
     -*) ARG="${1#*-}"
         [ ${#ARG} -gt 1 ] && expand_args "$ARG" || GIT_OPTIONS+=("$1");;
+
+    *..*) COUNT=-1; GIT_OPTIONS+=("$1");; # One format of a commit range
 
     # Any positional args get passed on to 'git'
     *) GIT_OPTIONS+=("$1");;
@@ -116,8 +124,14 @@ else
   FORMAT='--oneline'
 fi
 
+# "-c color.ui=always" because the output may be used with grep, head, less etc.
+
 # Show the generated command, and execute it.
-COMMAND="git $PAGING log --graph $FORMAT --first-parent --decorate -n $COUNT ${GIT_OPTIONS[*]}"
+if [ $COUNT -lt 1 ]; then
+  COMMAND="git -c color.ui=always $PAGING log --graph $FORMAT --first-parent --decorate ${GIT_OPTIONS[*]}"
+else
+  COMMAND="git -c color.ui=always $PAGING log --graph $FORMAT --first-parent --decorate -n $COUNT ${GIT_OPTIONS[*]}"
+fi
 echo "$COMMAND"
 
 # TODO: may want to build the command with array instead of string,

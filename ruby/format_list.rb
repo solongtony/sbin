@@ -4,7 +4,7 @@
 # Ideal for use in a SQL "in" clause.
 
 # TODO: support command line options for these things.
-QUOTE_CHARACTER = '\''
+QUOTE_CHARACTER = '' #'\''
 DELIMITER = ', '
 PARENS = true
 OPEN_PAREN = '('

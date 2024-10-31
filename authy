@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# process substition removes any newline and sends the result to paste board
+auth "$1" | tee >(tr -d '\n' | pbcopy)
