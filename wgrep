@@ -23,4 +23,4 @@ fi
 # find . -type f \( -perm -u=x -o -perm -g=x -o -perm -o=x \) -exec test -x {} \; -print
 
 # Find the pattern anywhere, including the path.
-pp | tr '\n' '\0' | xargs -0 -n 1 -I {} find "{}" -maxdepth 1 -type f -perm -u=x | grep "$PATTERN" "$GREP_OPTS"
+pp | tr '\n' '\0' | xargs -0 -n 1 -I {} find "{}" -maxdepth 1 -type f -perm -u=x 2> /dev/null | grep "$PATTERN" "$GREP_OPTS"
