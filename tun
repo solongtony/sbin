@@ -3,10 +3,11 @@
 
 LOCAL_PORT="$1"
 REMOTE_HOST="$2"
-REMOTE_PORT="$LOCAL_PORT" # Change this if the ports are not the same.
+# REMOTE_PORT="$LOCAL_PORT" # Change this if the ports are not the same.
+REMOTE_PORT="$3"
 
 # Optional
-PROXY="$3"      # Will tunnel through this proxy.
+# PROXY="$3"      # Will tunnel through this proxy.
 
 
 # For security, the local binding is always be bound to local host:
@@ -24,7 +25,10 @@ PROXY="$3"      # Will tunnel through this proxy.
 
 if [ -z "$PROXY" ]
 then
-  ssh -fNL "127.0.0.1:${LOCAL_PORT}:${REMOTE_HOST}:${REMOTE_PORT}"
+  # ssh -fNL "127.0.0.1:${LOCAL_PORT}:${REMOTE_HOST}:${REMOTE_PORT}"
+  # Is ssh on maxos different? Is the first command outdated?
+  echo "ssh -fNL ${LOCAL_PORT}:127.0.0.1:${REMOTE_PORT} ${REMOTE_HOST}"
+  ssh -fNL "${LOCAL_PORT}:127.0.0.1:${REMOTE_PORT}" "${REMOTE_HOST}"
 else
   ssh -fNL "127.0.0.1:${LOCAL_PORT}:${REMOTE_HOST}:${REMOTE_PORT}" "${PROXY}"
 fi
