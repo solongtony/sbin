@@ -136,18 +136,17 @@ path_add_first() {
 }
 
 # Ruby rbenv
-#PATH=~/.rbenv/bin:$PATH
 path_add_first "~/.rbenv/bin"
-#PATH=~/.rbenv/shims:$PATH
 path_add_first "~/.rbenv/shims"
 eval "$(rbenv init -)"
 
 # NPM, use home instead of /usr/local/lib
 # Initial setup for this is `npm config set prefix ~/.npm`
-PATH="$HOME/.npm/bin:$PATH
+path_add_first "$HOME/.npm/bin"
 
-# User bin. May have already been added, e.g. by .profile
-if [[ ":$PATH:" != *":$1:"* ]]; then
-    PATH=~/bin:$PATH
-fi
+# Clone this repo at ~/bin/git/sbin
+# Then put it on the path here
+path_add_first "~/bin/git/sbin"
+path_add_first "~/bin"
+
 export PATH
